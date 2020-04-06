@@ -11,7 +11,7 @@ namespace systelab { namespace time { namespace test_utility {
 		MockTimeAdapter();
 		virtual ~MockTimeAdapter();
 
-		MOCK_CONST_METHOD0(getCurrentUTCTime, std::chrono::time_point());
+		MOCK_CONST_METHOD0(getCurrentUTCTime, std::chrono::system_clock::time_point());
 	};
 
 }}}
