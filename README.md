@@ -92,12 +92,11 @@ target_link_libraries(${MY_PROJECT} ${CONAN_LIBS})
 
 ### Current time
 
-The current time can be retrieved using an instance of `systelab::time::ITimeAdapter`. It can be formatted as local or UTC as follows:
+The current time (in UTC) can be retrieved using an instance of `systelab::time::ITimeAdapter` as follows:
 
 ``` cpp
 #include "TimeAdapter/ITimeAdapter.h"
 
 systelab::time::ITimeAdapter& timeAdapter = ...
-std::chrono::system_clock::time_point currentLocalTime = timeAdapter.getCurrentLocalTime();
 std::chrono::system_clock::time_point currentUTCTime = timeAdapter.getCurrentUTCTime();
 ```
