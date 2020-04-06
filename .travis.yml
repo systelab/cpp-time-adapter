@@ -1,0 +1,152 @@
+matrix:
+  include:
+  - os: linux
+    dist: xenial
+    language: python
+    compiler: gcc
+    python: "3.7"
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - gcc-7
+          - g++-7
+    env:
+      - BUILD_TYPE=Release
+      - CONAN_BUILD_TYPE=Release
+      - COMPILER_LIBCXX=libstdc++11
+      - GTEST_VERSION=1.8.1
+      - BOOST_VERSION=1.67.0
+
+  - os: linux
+    dist: xenial
+    language: python
+    compiler: gcc
+    python: "3.7"
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - gcc-7
+          - g++-7
+    env:
+      - BUILD_TYPE=Debug
+      - CONAN_BUILD_TYPE=Debug
+      - COMPILER_LIBCXX=libstdc++11
+      - GTEST_VERSION=1.8.1
+      - BOOST_VERSION=1.67.0
+
+  - os: linux
+    dist: xenial
+    language: python
+    compiler: gcc
+    python: "3.7"
+    addons:
+      apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        packages:
+          - gcc-7
+          - g++-7
+    env:
+      - BUILD_TYPE=Coverage
+      - CONAN_BUILD_TYPE=Debug
+      - COMPILER_LIBCXX=libstdc++11
+      - GTEST_VERSION=1.8.1
+      - BOOST_VERSION=1.67.0
+
+  - os: osx
+    osx_image: xcode10.1
+    language: cpp
+    compiler: clang   
+    env:
+      - BUILD_TYPE=Release
+      - CONAN_BUILD_TYPE=Release
+      - COMPILER_LIBCXX=libc++
+      - GTEST_VERSION=1.8.1
+      - BOOST_VERSION=1.67.0
+
+install: 
+  - if [ $TRAVIS_OS_NAME == linux ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90; fi
+  - if [ $TRAVIS_OS_NAME == linux ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90; fi
+  - if [[ $TRAVIS_OS_NAME == linux && $BUILD_TYPE == Coverage ]]; then sudo apt-get install lcov; fi
+  - if [ $TRAVIS_OS_NAME == linux ]; then pip install conan; fi
+  - if [ $TRAVIS_OS_NAME == osx ]; then brew install conan; fi
+  - conan user
+  - conan remote add systelab-bintray https://api.bintray.com/conan/systelab/conan
+  - conan --version
+
+script:
+  - g++ --version
+  - mkdir -p build
+  - cd build
+  - conan install .. -s build_type=${CONAN_BUILD_TYPE} -s compiler.libcxx=${COMPILER_LIBCXX} -o gtest=${GTEST_VERSION} -o boost=${BOOST_VERSION}
+  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+  - make
+  - cd bin
+  - if [ $TRAVIS_OS_NAME == osx ]; then cp -f *.dylib /usr/local/lib; fi
+  - ./TimeAdapterTest
+  - cd ..
+  - cd test
+  - cd TimeAdapterTest
+  - ctest
+  - cd ..
+  - cd ..
+  - |
+    if [ -n "$TRAVIS_TAG" ]; then
+      conan export-pkg ../conanfile.py "TimeAdapter/${TRAVIS_TAG:1}@systelab/stable" -s build_type=${CONAN_BUILD_TYPE} -s compiler.libcxx=${COMPILER_LIBCXX} -o gtest=${GTEST_VERSION};
+    else
+      conan export-pkg ../conanfile.py "TimeAdapter/0.0.${TRAVIS_BUILD_NUMBER}@systelab/stable" -s build_type=${CONAN_BUILD_TYPE} -s compiler.libcxx=${COMPILER_LIBCXX} -o gtest=${GTEST_VERSION};
+    fi
+  - |
+    if [ "$BUILD_TYPE" == "Release" ] || [ "$BUILD_TYPE" == "Debug" ]; then
+      if [ -n "$TRAVIS_TAG" ]; then
+        conan test ../test_package/conanfile.py TimeAdapter/${TRAVIS_TAG:1}@systelab/stable -s build_type=${CONAN_BUILD_TYPE} -s compiler.libcxx=${COMPILER_LIBCXX} -o gtest=${GTEST_VERSION};
+      else
+        conan test ../test_package/conanfile.py TimeAdapter/0.0.${TRAVIS_BUILD_NUMBER}@systelab/stable -s build_type=${CONAN_BUILD_TYPE} -s compiler.libcxx=${COMPILER_LIBCXX} -o gtest=${GTEST_VERSION};
+      fi
+    fi
+  - if [[ $TRAVIS_OS_NAME == linux && $BUILD_TYPE == Coverage ]]; then make TimeAdapterTestCoverage; fi
+  - cd ..
+  - cd test
+  - cd TimeAdapterTestUtilities
+  - mkdir -p build
+  - cd build
+  - |
+    if [ -n "$TRAVIS_TAG" ]; then
+      conan install .. -s build_type=${CONAN_BUILD_TYPE} -s compiler.libcxx=${COMPILER_LIBCXX} -o gtest=${GTEST_VERSION} -e VERSION="${TRAVIS_TAG:1}";
+    else
+      conan install .. -s build_type=${CONAN_BUILD_TYPE} -s compiler.libcxx=${COMPILER_LIBCXX} -o gtest=${GTEST_VERSION} -e VERSION="0.0.${TRAVIS_BUILD_NUMBER}";
+    fi
+  - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+  - make
+  - |
+    if [ -n "$TRAVIS_TAG" ]; then
+      conan export-pkg ../conanfile.py "TimeAdapterTestUtilities/${TRAVIS_TAG:1}@systelab/stable" -s build_type=${CONAN_BUILD_TYPE} -s compiler.libcxx=${COMPILER_LIBCXX} -o gtest=${GTEST_VERSION};
+    else
+      conan export-pkg ../conanfile.py "TimeAdapterTestUtilities/0.0.${TRAVIS_BUILD_NUMBER}@systelab/stable" -s build_type=${CONAN_BUILD_TYPE} -s compiler.libcxx=${COMPILER_LIBCXX} -o gtest=${GTEST_VERSION};
+    fi
+  - |
+    if [ "$BUILD_TYPE" == "Release" ] || [ "$BUILD_TYPE" == "Debug" ]; then
+      if [ -n "$TRAVIS_TAG" ]; then
+        conan test ../test_package/conanfile.py TimeAdapterTestUtilities/${TRAVIS_TAG:1}@systelab/stable -s build_type=${CONAN_BUILD_TYPE} -s compiler.libcxx=${COMPILER_LIBCXX} -o gtest=${GTEST_VERSION};
+      else
+        conan test ../test_package/conanfile.py TimeAdapterTestUtilities/0.0.${TRAVIS_BUILD_NUMBER}@systelab/stable -s build_type=${CONAN_BUILD_TYPE} -s compiler.libcxx=${COMPILER_LIBCXX} -o gtest=${GTEST_VERSION};
+      fi
+    fi
+  - cd ..
+  - cd ..
+  - cd ..
+
+deploy:
+  provider: script
+  script: bash ./deploy.sh -v "${TRAVIS_TAG:1}"
+  skip_cleanup: true
+  on:
+    tags: true
+    condition: "$BUILD_TYPE != Coverage"
+
+after_success:
+  - if [[ $TRAVIS_OS_NAME == linux && $BUILD_TYPE == Coverage ]]; then bash <(curl -s https://codecov.io/bash); fi
