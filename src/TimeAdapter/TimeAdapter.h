@@ -11,7 +11,7 @@ namespace systelab { namespace time {
 		TimeAdapter();
 		virtual ~TimeAdapter();
 
-		std::chrono::time_point getCurrentUTCTime() const override;
+		std::chrono::system_clock::time_point getCurrentUTCTime() const override;
 	};
 
 }}

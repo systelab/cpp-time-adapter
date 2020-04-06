@@ -1,5 +1,8 @@
 #pragma once
 
+#include <iostream>
+#include <vector>
+#include <numeric>
 #include <chrono>
 
 
@@ -10,7 +13,7 @@ namespace systelab { namespace time {
 	public:
 		virtual ~ITimeAdapter() = default;
 
-		virtual std::chrono::time_point getCurrentUTCTime() const = 0;
+		virtual std::chrono::system_clock::time_point getCurrentUTCTime() const = 0;
 	};
 
 }}
