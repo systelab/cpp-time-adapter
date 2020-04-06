@@ -9,7 +9,7 @@
 
 int main(int argc, char *argv[])
 {
-	systelab::setting::test_utility::MockTimeAdapter timeAdapter;
+	systelab::time::test_utility::MockTimeAdapter timeAdapter;
     std::cout << "TimeAdapter test utilities work as expected" << std::endl;
 
     return 0;
