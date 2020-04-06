@@ -36,6 +36,7 @@ class TimeAdapterConan(ConanFile):
         self.copy("*.so*", dst="bin", src="lib")
 
     def package(self):
+        self.copy("ITimeAdapter.h", dst="include/TimeAdapter", src="src/TimeAdapter")
         self.copy("TimeAdapter.h", dst="include/TimeAdapter", src="src/TimeAdapter")
         self.copy("*TimeAdapter.lib", dst="lib", keep_path=False)
         self.copy("*TimeAdapter.pdb", dst="lib", keep_path=False)
