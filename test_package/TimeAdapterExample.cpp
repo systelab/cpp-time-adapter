@@ -10,7 +10,7 @@
 
 int main(int argc, char *argv[])
 {
-	auto now = TimeAdapter().getCurrentUTCTime();
+	auto now = systelab::time::TimeAdapter().getCurrentUTCTime();
 	std::cout << "Current UTC Time: " << now << std::endl;
     return 0;
 }
