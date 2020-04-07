@@ -13,7 +13,7 @@ namespace systelab { namespace time { namespace test_utility {
 		ON_CALL(*this, getCurrentUTCTime()).WillByDefault(Invoke(this, &StubTimeAdapter::getCurrentUTCTimeStub));
 	}
 
-	StubTimeAdapter::~StubTimeService() = default;
+	StubTimeAdapter::~StubTimeAdapter() = default;
 
 	std::chrono::system_clock::time_point StubTimeAdapter::getCurrentUTCTimeStub()
 	{

@@ -13,7 +13,7 @@ namespace systelab { namespace time { namespace test_utility {
 	{
 	public:
 		StubTimeAdapter();
-		virtual ~StubTimeService();
+		virtual ~StubTimeAdapter();
 
 		std::chrono::system_clock::time_point getCurrentUTCTimeStub() const;
 		void addMilliseconds(int milliseconds);
