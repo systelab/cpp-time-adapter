@@ -15,7 +15,7 @@ namespace systelab { namespace time { namespace test_utility {
 
 	StubTimeAdapter::~StubTimeAdapter() = default;
 
-	std::chrono::system_clock::time_point StubTimeAdapter::getCurrentUTCTimeStub()
+	std::chrono::system_clock::time_point StubTimeAdapter::getCurrentUTCTimeStub() const
 	{
 		return m_currentTime;
 	}
