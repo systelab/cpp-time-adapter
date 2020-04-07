@@ -86,7 +86,6 @@ script:
   - cmake .. -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
   - make
   - cd bin
-  - if [ $TRAVIS_OS_NAME == osx ]; then cp -f *.dylib /usr/local/lib; fi
   - ./TimeAdapterTest
   - cd ..
   - cd test
