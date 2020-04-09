@@ -20,14 +20,34 @@ namespace systelab { namespace time { namespace test_utility {
 		return m_currentTime;
 	}
 
-	void StubTimeAdapter::addMilliseconds(int milliseconds)
+	void StubTimeAdapter::setCurrentTime(std::chrono::system_clock::time_point time)
+	{
+		m_currentTime = time;
+	}
+
+	void StubTimeAdapter::addMicroseconds(long long milliseconds)
+	{
+		m_currentTime = m_currentTime + std::chrono::microseconds(milliseconds);
+	}
+
+	void StubTimeAdapter::addMilliseconds(long long milliseconds)
 	{
 		m_currentTime = m_currentTime + std::chrono::milliseconds(milliseconds);
 	}
 
-	void StubTimeAdapter::setCurrentTime(std::chrono::system_clock::time_point time)
+	void StubTimeAdapter::addSeconds(long long seconds)
 	{
-		m_currentTime = time;
+		m_currentTime = m_currentTime + std::chrono::seconds(seconds);
+	}
+
+	void StubTimeAdapter::addMinutes(long long minutes)
+	{
+		m_currentTime = m_currentTime + std::chrono::minutes(minutes);
+	}
+
+	void StubTimeAdapter::addHours(long long hours)
+	{
+		m_currentTime = m_currentTime + std::chrono::hours(hours);
 	}
 
 }}}
