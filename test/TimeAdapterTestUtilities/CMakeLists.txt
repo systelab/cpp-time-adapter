@@ -14,8 +14,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Find external dependencides
-find_package(gtest)
 find_package(TimeAdapter)
+
+set(GTEST_PACKAGE_NAME gtest)
+find_package(${GTEST_PACKAGE_NAME})
+if (NOT TARGET ${GTEST_PACKAGE_NAME}::${GTEST_PACKAGE_NAME})
+    set(GTEST_PACKAGE_NAME GTest)
+    find_package(${GTEST_PACKAGE_NAME})
+endif()
 
 # Configure time adapter test utilities project
 set(TIME_ADAPTER_TEST_UTILITIES_PROJECT TimeAdapterTestUtilities)
@@ -38,7 +44,7 @@ foreach (TMP_PATH ${TIME_ADAPTER_TEST_UTILITIES_PROJECT_HDR})
 endforeach(TMP_PATH)
 
 add_library(${TIME_ADAPTER_TEST_UTILITIES_PROJECT} STATIC ${TIME_ADAPTER_TEST_UTILITIES_PROJECT_SRC} ${TIME_ADAPTER_TEST_UTILITIES_PROJECT_HDR})
-target_link_libraries(${TIME_ADAPTER_TEST_UTILITIES_PROJECT} TimeAdapter::TimeAdapter gtest::gtest)
+target_link_libraries(${TIME_ADAPTER_TEST_UTILITIES_PROJECT} TimeAdapter::TimeAdapter ${GTEST_PACKAGE_NAME}::${GTEST_PACKAGE_NAME})
 
 # Configure source groups
 foreach(FILE ${TIME_ADAPTER_TEST_UTILITIES_PROJECT_SRC} ${TIME_ADAPTER_TEST_UTILITIES_PROJECT_HDR})

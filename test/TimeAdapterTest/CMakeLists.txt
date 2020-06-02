@@ -7,14 +7,19 @@ enable_testing()
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Find external dependencides
-find_package(gtest)
+set(GTEST_PACKAGE_NAME gtest)
+find_package(${GTEST_PACKAGE_NAME})
+if (NOT TARGET ${GTEST_PACKAGE_NAME}::${GTEST_PACKAGE_NAME})
+    set(GTEST_PACKAGE_NAME GTest)
+    find_package(${GTEST_PACKAGE_NAME})
+endif()
 
 # Configure test project
 set(TIME_ADAPTER_TEST_PROJECT TimeAdapterTest)
 file(GLOB_RECURSE TIME_ADAPTER_TEST_PROJECT_SRC "*.cpp")
 file(GLOB_RECURSE TIME_ADAPTER_TEST_PROJECT_HDR "*.h")
 add_executable(${TIME_ADAPTER_TEST_PROJECT} ${TIME_ADAPTER_TEST_PROJECT_SRC} ${TIME_ADAPTER_TEST_PROJECT_HDR})
-target_link_libraries(${TIME_ADAPTER_TEST_PROJECT} TimeAdapter gtest::gtest)
+target_link_libraries(${TIME_ADAPTER_TEST_PROJECT} TimeAdapter ${GTEST_PACKAGE_NAME}::${GTEST_PACKAGE_NAME})
 
 # Ignored missing PDBs link warning on Visual Studio
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
