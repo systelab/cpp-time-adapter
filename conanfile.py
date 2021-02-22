@@ -10,8 +10,8 @@ class TimeAdapterConan(ConanFile):
     license = "MIT"
     generators = "cmake_find_package"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"boost": ["1.66.0", "1.67.0", "1.71.0"], "gtest": ["1.7.0", "1.8.1", "1.10.0"]}
-    default_options = {"boost":"1.71.0", "gtest":"1.10.0"}
+    options = {"gtest": ["1.7.0", "1.8.1", "1.10.0"]}
+    default_options = {"gtest":"1.10.0"}
     exports_sources = "*"
 
     def configure(self):
