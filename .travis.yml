@@ -58,7 +58,7 @@ matrix:
       - BOOST_VERSION=1.67.0
 
   - os: osx
-    osx_image: xcode10.1
+    osx_image: xcode12.2
     language: cpp
     compiler: clang   
     env:
@@ -67,6 +67,10 @@ matrix:
       - COMPILER_LIBCXX=libc++
       - GTEST_VERSION=1.8.1
       - BOOST_VERSION=1.67.0
+    cache:
+      directories:
+        - $HOME/Library/Caches/Homebrew
+        - /usr/local/Homebrew
 
 install: 
   - if [ $TRAVIS_OS_NAME == linux ]; then sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 90; fi
@@ -75,7 +79,7 @@ install:
   - if [ $TRAVIS_OS_NAME == linux ]; then pip install conan; fi
   - if [ $TRAVIS_OS_NAME == osx ]; then brew install conan; fi
   - conan user
-  - conan remote add systelab-bintray https://api.bintray.com/conan/systelab/conan
+  - conan remote add systelab-public https://systelab.jfrog.io/artifactory/api/conan/cpp-conan-production-local
   - conan --version
 
 script:
