@@ -63,10 +63,10 @@ build_script:
 test_script:
   - ps: cd bin
   - ps: cd $env:CONFIGURATION
-  - TimeAdapterTest.exe --gtest_output=xml:TimeAdapterTest.xml
+  - TimeAdapterTest.exe --gtest_output=xml:../TimeAdapterTest.xml
 
 after_test:
-  - ps: (new-object net.webclient).UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\TimeAdapterTest.xml))
+  - ps: (new-object net.webclient).UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path ..\TimeAdapterTest.xml))
 
 artifacts:
   - path: 'build\lib\%CONFIGURATION%\TimeAdapter.lib'
