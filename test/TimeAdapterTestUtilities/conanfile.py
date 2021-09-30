@@ -24,9 +24,9 @@ class TimeAdapterTestUtilitiesConan(ConanFile):
         elif self.options.gtest == "1.8.1":
             self.requires("gtest/1.8.1")
         elif self.options.gtest == "1.10.0":
-            self.build_requires("gtest/1.10.0#0c895f60b461f8fee0da53a84d659131")
+            self.requires("gtest/1.10.0#0c895f60b461f8fee0da53a84d659131")
         else:
-            self.build_requires(f"gtest/{self.options.gtest}")
+            self.requires(f"gtest/{self.options.gtest}")
 
         if ("%s" % self.version) == "None":
             channel = os.environ['CHANNEL'] if "CHANNEL" in os.environ else "stable"
