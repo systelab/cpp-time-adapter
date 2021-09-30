@@ -12,7 +12,7 @@ class TimeAdapterConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"gtest": ["1.7.0", "1.8.1", "1.10.0"]}
     default_options = {"gtest":"1.10.0"}
-    exports_sources = "*"
+    exports_sources = "*", "!test/TimeAdapterTestUtilities", "!build-*", "!*.yml", "!*.md", "!*.in", "!ci", "!.gitattributes", "!.gitignore", "!LICENSE"
 
     def configure(self):
         self.options["TimeAdapter"].gtest = self.options.gtest
