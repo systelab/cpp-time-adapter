@@ -29,9 +29,10 @@ class TimeAdapterTestUtilitiesConan(ConanFile):
             self.build_requires(f"gtest/{self.options.gtest}")
 
         if ("%s" % self.version) == "None":
-            self.requires("TimeAdapter/%s@systelab/stable" % os.environ['VERSION'])
+            channel = os.environ['CHANNEL'] if "CHANNEL" in os.environ else "stable"
+            self.requires(f"TimeAdapter/{os.environ['VERSION']}@systelab/{channel}")
         else:
-            self.requires("TimeAdapter/%s@systelab/stable" % self.version)
+            self.requires(f"TimeAdapter/{self.version}@systelab/{self.channel}")
 
     def build(self):
         cmake = CMake(self)
