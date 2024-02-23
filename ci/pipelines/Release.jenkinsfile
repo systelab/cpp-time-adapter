@@ -1,6 +1,8 @@
 def channel = "testing"
 def version = "0.0.0"
-
+def profile = "vs2022.conanprofile"
+def archs = ['x86', 'x86_64']
+def configs = ['Debug', 'Release']
 
 library identifier: "cpp-jenkins-pipelines@master", retriever: modernSCM(
   [$class: "GitSCMSource",
@@ -55,35 +57,28 @@ pipeline
 			{
 				script
 				{
-					def configurations = ['NewtonDebug', 'NewtonRelease', 'SnowDebug', 'SnowRelease']
-					for(int i=0; i < configurations.size(); i++)
-					{
-						stage('Build ' + configurations[i])
-						{
-							def props = readProperties file:"ci/pipelines/${configurations[i]}.properties"							
-							props.each { propKey, propValue -> println "${propKey}: ${propValue}" }
-
-							sh "mkdir build-${configurations[i]}"
-							dir("build-${configurations[i]}")
+					archs.each
+					{ arch ->
+						configs.each
+						{ config ->
+							stage("Build ${config}|${arch}")
 							{
-								sh "conan install .. -s build_type=${props.conanBuildType} -s compiler.toolset=${props.conanCompilerToolset} -s arch=${props.conanArch} -o gtest=${props.conanGTestVersion}"
-								sh "cmake .. -G '${props.cmakeVS}' -A ${props.cmakePlatform}"
-								sh "cmake --build . --config ${props.cmakeConfiguration}"
-								sh "conan export-pkg ../conanfile.py TimeAdapter/${version}@systelab/${channel} -s build_type=${props.conanBuildType} -s compiler.toolset=${props.conanCompilerToolset} -s arch=${props.conanArch} -o gtest=${props.conanGTestVersion} --force"
-								sh "conan test ../test_package/conanfile.py TimeAdapter/${version}@systelab/${channel} -s build_type=${props.conanBuildType} -s compiler.toolset=${props.conanCompilerToolset} -s arch=${props.conanArch} -o gtest=${props.conanGTestVersion}"
-								sh "bin/${props.conanBuildType}/TimeAdapterTest.exe --gtest_output=xml:TimeAdapterTest.xml"
-							}
-
-							dir("test/TimeAdapterTestUtilities")
-							{
-								sh "mkdir build-${configurations[i]}"
-								dir("build-${configurations[i]}")
+								def buildFolder = "build/${config}-${arch}"
+								bat "conan install . --install-folder ${buildFolder} --profile=${profile} -s arch=${arch} -s build_type=${config}"
+								bat "conan build . --build-folder ${buildFolder}" 
+								bat "conan export-pkg . TimeAdapter/${version}@systelab/${channel} --build-folder ${buildFolder} --force"
+								bat "conan test ./test_package/conanfile.py TimeAdapter/${version}@systelab/${channel} --profile=${profile} -s arch=${arch} -s build_type=${config}"
+								dir("${buildFolder}/bin/${config}/")
 								{
-									sh "conan install .. -s build_type=${props.conanBuildType} -s compiler.toolset=${props.conanCompilerToolset} -s arch=${props.conanArch} -e VERSION=${version} -e CHANNEL=${channel} -o gtest=${props.conanGTestVersion}"
-									sh "cmake .. -G '${props.cmakeVS}' -A ${props.cmakePlatform}"
-									sh "cmake --build . --config ${props.cmakeConfiguration}"
-									sh "conan export-pkg ../conanfile.py TimeAdapterTestUtilities/${version}@systelab/${channel} -s build_type=${props.conanBuildType} -s compiler.toolset=${props.conanCompilerToolset} -s arch=${props.conanArch} -o gtest=${props.conanGTestVersion} --force"
-									sh "conan test ../test_package/conanfile.py TimeAdapterTestUtilities/${version}@systelab/${channel} -s build_type=${props.conanBuildType} -s compiler.toolset=${props.conanCompilerToolset} -s arch=${props.conanArch} -o gtest=${props.conanGTestVersion}"
+									bat "TimeAdapterTest.exe --gtest_output=xml:TimeAdapterTest.xml"
+								}
+								
+								dir("test/TimeAdapterTestUtilities")
+								{
+									bat "conan install . --install-folder ${buildFolder} --profile=$../../{profile} -s arch=${arch} -s build_type=${config} -e VERSION=${version} -e CHANNEL=${channel}"
+									bat "conan build . --build-folder ${buildFolder}" 
+									bat "conan export-pkg . TimeAdapterTestUtilities/${version}@systelab/${channel} --build-folder ${buildFolder} --force"
+									bat "conan test ./test_package/conanfile.py TimeAdapterTestUtilities/${version}@systelab/${channel} --profile=../../${profile} -s arch=${arch} -s build_type=${config}"
 								}
 							}
 						}
@@ -98,9 +93,7 @@ pipeline
 			{
 				script
 				{
-					sh "conan remove TimeAdapter/${version}@systelab/${channel} -r systelab-conan-local --force"
 					sh "conan upload TimeAdapter/${version}@systelab/${channel} --all -r systelab-conan-local --force"
-					sh "conan remove TimeAdapterTestUtilities/${version}@systelab/${channel} -r systelab-conan-local --force"
 					sh "conan upload TimeAdapterTestUtilities/${version}@systelab/${channel} --all -r systelab-conan-local --force"
 				}
 			}
