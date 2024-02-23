@@ -24,9 +24,8 @@ In order to build the application on Windows for the `Release` configuration, ru
 > git clone https://github.com/systelab/cpp-time-adapter
 > md build && cd build
 > conan remote add systelab-public https://systelab.jfrog.io/artifactory/api/conan/cpp-conan-production-local
-> conan install .. -s build_type=Release -s compiler.toolset=v142 -s arch=x86_64
-> cmake .. -G "Visual Studio 16 2019" -A x64
-> "$VSINSTALLPATH/devenv.com" TimeAdapter.sln /build "Release" /PROJECT "TimeAdapter"
+> conan install . --profile=vs2022.conanprofile -s build_type=Release -s arch=x86_64 -if build/Release_x64
+> conan build . -bf build/Release_x64
 ```
 
 However, if you want to `Debug` the source code, you will need these commands:
@@ -35,9 +34,8 @@ However, if you want to `Debug` the source code, you will need these commands:
 > git clone https://github.com/systelab/cpp-time-adapter
 > md build && cd build
 > conan remote add systelab-public https://systelab.jfrog.io/artifactory/api/conan/cpp-conan-production-local
-> conan install .. -s build_type=Debug -s compiler.toolset=v142 -s arch=x86_64
-> cmake .. -G "Visual Studio 16 2019" -A x64
-> "$VSINSTALLPATH/devenv.com" TimeAdapter.sln /build "Debug" /PROJECT "TimeAdapter"
+> conan install . --profile=vs2022.conanprofile -s build_type=Debug -s arch=x86_64 -if build/Debug_x64
+> conan build . -bf build/Debug_x64
 ```
 
 ### Linux
