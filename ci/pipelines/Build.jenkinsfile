@@ -22,6 +22,11 @@ pipeline
 		buildDiscarder(logRotator(numToKeepStr: '5'))
 	}
 
+	environment
+	{
+		PATH = "${env.USERPROFILE}\\.venvs\\conan2\\Scripts;${env.PATH}"
+	}
+
 	stages
 	{
 		stage('Checkout')
