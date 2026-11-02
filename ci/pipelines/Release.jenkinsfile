@@ -59,7 +59,7 @@ pipeline
 								def buildFolder = "build/${config}-${arch}"
 								bat "conan install . --output-folder ${buildFolder} --profile:all=${profile} -s arch=${arch} -s build_type=${config}"
 								bat "conan build . --output-folder ${buildFolder} --profile:all=${profile} -s arch=${arch} -s build_type=${config}" 
-								bat "conan export-pkg . --name time-adapter --version ${params.version} --output-folder ${buildFolder} --profile:all=${profile} -s arch=${arch} -s build_type=${config} --force"
+								bat "conan export-pkg . --name time-adapter --version ${params.version} --output-folder ${buildFolder} --profile:all=${profile} -s arch=${arch} -s build_type=${config}"
 								bat "conan test ./test_package/conanfile.py time-adapter/${params.version} --profile:all=${profile} -s arch=${arch} -s build_type=${config}"
 								dir("${buildFolder}/bin/${config}/")
 								{
@@ -70,7 +70,7 @@ pipeline
 								{
 									bat "conan install . --version ${params.version} --output-folder ${buildFolder} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
 									bat "conan build . --version ${params.version} --output-folder ${buildFolder} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
-									bat "conan export-pkg . --name time-adapter-test-utilities --version ${params.version} --output-folder ${buildFolder} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config} --force"
+									bat "conan export-pkg . --name time-adapter-test-utilities --version ${params.version} --output-folder ${buildFolder} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
 									bat "conan test ./test_package/conanfile.py time-adapter-test-utilities/${params.version} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
 								}
 							}
@@ -86,8 +86,8 @@ pipeline
 			{
 				script
 				{
-					bat "conan upload time-adapter/${params.version} -r aid-conan-production-local --force"
-					bat "conan upload time-adapter-test-utilities/${params.version} -r aid-conan-production-local --force"
+					bat "conan upload time-adapter/${params.version} -r aid-conan-production-local --confirm --force"
+					bat "conan upload time-adapter-test-utilities/${params.version} -r aid-conan-production-local --confirm --force"
 				}
 			}
 		}	
