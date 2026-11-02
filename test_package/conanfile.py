@@ -1,18 +1,32 @@
-from conans import ConanFile, CMake
+import os
+
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain
+from conan.tools.files import copy
+
+required_conan_version = ">=2.0.0"
+
 
 class TimeAdapterTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake_find_package"
+
+    def requirements(self):
+        self.requires(self.tested_reference_str)
+
+    def generate(self):
+        CMakeToolchain(self).generate()
+        CMakeDeps(self).generate()
+        for dep in self.dependencies.values():
+            for bindir in dep.cpp_info.bindirs:
+                copy(self, "*.dll", bindir, os.path.join(self.build_folder, "bin", str(self.settings.build_type)))
+            for libdir in dep.cpp_info.libdirs:
+                copy(self, "*.dylib*", libdir, os.path.join(self.build_folder, "bin"))
+                copy(self, "*.so*", libdir, os.path.join(self.build_folder, "bin"))
 
     def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-
-    def imports(self):
-        self.copy("*.dll", dst=("bin/%s" % self.settings.build_type), src="bin")
-        self.copy("*.dylib*", dst="bin", src="lib")
-        self.copy('*.so*', dst='bin', src='lib')
 
     def test(self):
         cmake = CMake(self)

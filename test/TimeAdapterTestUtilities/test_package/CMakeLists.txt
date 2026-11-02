@@ -11,12 +11,12 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Find tested package
-find_package(TimeAdapterTestUtilities)
+find_package(time-adapter-test-utilities)
 
 # Configure test package project
 set(TIME_ADAPTER_TEST_UTILITIES_PACKAGE_TEST_PROJECT TimeAdapterTestUtilitiesPackageTest)
 add_executable(${TIME_ADAPTER_TEST_UTILITIES_PACKAGE_TEST_PROJECT} TimeAdapterTestUtilitiesExample.cpp)
-target_link_libraries(${TIME_ADAPTER_TEST_UTILITIES_PACKAGE_TEST_PROJECT} TimeAdapterTestUtilities::TimeAdapterTestUtilities)
+target_link_libraries(${TIME_ADAPTER_TEST_UTILITIES_PACKAGE_TEST_PROJECT} time-adapter-test-utilities::time-adapter-test-utilities)
 
 # Register test
 enable_testing()

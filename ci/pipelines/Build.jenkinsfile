@@ -1,4 +1,3 @@
-def channel = "testing"
 def version = "0.0.0"
 def profile = "vs2022.conanprofile"
 def archs = ['x86', 'x86_64']
@@ -16,13 +15,6 @@ pipeline
 		label 'lib-build'
 	}
 
-	parameters
-	{
-		booleanParam( name: 'uploadTestingPkg',
-					  description: 'Whether or not to upload testing conan package',
-					  defaultValue: false )
-	}
-
 	options
 	{
 		skipDefaultCheckout(true)
@@ -37,7 +29,6 @@ pipeline
 			steps
 			{
 				deleteDir()
-				configureConanRemotes()
 				checkoutSourceCode()
 			}
 		}
@@ -55,10 +46,10 @@ pipeline
 							stage("Build ${config}|${arch}")
 							{
 								def buildFolder = "build/${config}-${arch}"
-								bat "conan install . --install-folder ${buildFolder} --profile=${profile} -s arch=${arch} -s build_type=${config}"
-								bat "conan build . --build-folder ${buildFolder}" 
-								bat "conan export-pkg . TimeAdapter/${version}@systelab/${channel} --build-folder ${buildFolder} --force"
-								bat "conan test ./test_package/conanfile.py TimeAdapter/${version}@systelab/${channel} --profile=${profile} -s arch=${arch} -s build_type=${config}"
+								bat "conan install . --output-folder ${buildFolder} --profile:all=${profile} -s arch=${arch} -s build_type=${config}"
+								bat "conan build . --output-folder ${buildFolder} --profile:all=${profile} -s arch=${arch} -s build_type=${config}" 
+								bat "conan export-pkg . --name time-adapter --version ${version} --output-folder ${buildFolder} --profile:all=${profile} -s arch=${arch} -s build_type=${config} --force"
+								bat "conan test ./test_package/conanfile.py time-adapter/${version} --profile:all=${profile} -s arch=${arch} -s build_type=${config}"
 								dir("${buildFolder}/bin/${config}/")
 								{
 									bat "TimeAdapterTest.exe --gtest_output=xml:TimeAdapterTest.xml"
@@ -66,10 +57,10 @@ pipeline
 								
 								dir("test/TimeAdapterTestUtilities")
 								{
-									bat "conan install . --install-folder ${buildFolder} --profile=../../${profile} -s arch=${arch} -s build_type=${config} -e VERSION=${version} -e CHANNEL=${channel}"
-									bat "conan build . --build-folder ${buildFolder}" 
-									bat "conan export-pkg . TimeAdapterTestUtilities/${version}@systelab/${channel} --build-folder ${buildFolder} --force"
-									bat "conan test ./test_package/conanfile.py TimeAdapterTestUtilities/${version}@systelab/${channel} --profile=../../${profile} -s arch=${arch} -s build_type=${config}"
+									bat "conan install . --version ${version} --output-folder ${buildFolder} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
+									bat "conan build . --version ${version} --output-folder ${buildFolder} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
+									bat "conan export-pkg . --name time-adapter-test-utilities --version ${version} --output-folder ${buildFolder} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config} --force"
+									bat "conan test ./test_package/conanfile.py time-adapter-test-utilities/${version} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
 								}
 							}
 						}
@@ -77,22 +68,6 @@ pipeline
 				}
 			}
 		}
-
-		stage('Deploy')
-		{
-			when
-			{
-				expression { return params.uploadTestingPkg }
-			}
-			steps
-			{
-				script
-				{
-					sh "conan upload TimeAdapter/${version}@systelab/${channel} --all -r systelab-conan-local --force"
-					sh "conan upload TimeAdapterTestUtilities/${version}@systelab/${channel} --all -r systelab-conan-local --force"
-				}
-			}
-		}	
 	}
 	
 	post
