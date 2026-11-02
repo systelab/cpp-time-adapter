@@ -13,6 +13,11 @@ class TimeAdapterTestUtilitiesTestConan(ConanFile):
     def requirements(self):
         self.requires(self.tested_reference_str)
 
+    def layout(self):
+        # One build folder per architecture so CMake caches (generator platform) are never shared
+        self.folders.build = os.path.join("build", str(self.settings.arch))
+        self.folders.generators = self.folders.build
+
     def generate(self):
         CMakeToolchain(self).generate()
         CMakeDeps(self).generate()
