@@ -14,6 +14,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/test)
 
+# Needed at top level so ctest/RUN_TESTS find the subproject tests
+enable_testing()
+
 # Add subprojects
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/TimeAdapter)
 add_subdirectory(${CMAKE_SOURCE_DIR}/test/TimeAdapterTest)

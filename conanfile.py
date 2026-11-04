@@ -35,6 +35,7 @@ class TimeAdapterConan(ConanFile):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
+        cmake.test()
 
     def package(self):
         inc = os.path.join(self.package_folder, "include", "TimeAdapter")
