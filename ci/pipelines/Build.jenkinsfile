@@ -50,22 +50,10 @@ pipeline
 						{ config ->
 							stage("Build ${config}|${arch}")
 							{
-								def buildFolder = "build/${config}-${arch}"
-								bat "conan install . --output-folder ${buildFolder} --profile:all=${profile} -s arch=${arch} -s build_type=${config}"
-								bat "conan build . --output-folder ${buildFolder} --profile:all=${profile} -s arch=${arch} -s build_type=${config}" 
-								bat "conan export-pkg . --name time-adapter --version ${version} --output-folder ${buildFolder} --profile:all=${profile} -s arch=${arch} -s build_type=${config}"
-								bat "conan test ./test_package/conanfile.py time-adapter/${version} --profile:all=${profile} -s arch=${arch} -s build_type=${config}"
-								dir("${buildFolder}/bin/${config}/")
-								{
-									bat "TimeAdapterTest.exe --gtest_output=xml:TimeAdapterTest.xml"
-								}
-								
+								bat "conan create . --name time-adapter --version ${version} --profile:all=${profile} -s arch=${arch} -s build_type=${config}"
 								dir("test/TimeAdapterTestUtilities")
 								{
-									bat "conan install . --version ${version} --output-folder ${buildFolder} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
-									bat "conan build . --version ${version} --output-folder ${buildFolder} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
-									bat "conan export-pkg . --name time-adapter-test-utilities --version ${version} --output-folder ${buildFolder} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
-									bat "conan test ./test_package/conanfile.py time-adapter-test-utilities/${version} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
+									bat "conan create . --name time-adapter-test-utilities --version ${version} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
 								}
 							}
 						}
