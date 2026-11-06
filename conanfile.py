@@ -1,36 +1,51 @@
-from conans import ConanFile, CMake, tools
+import os
+
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain
+from conan.tools.files import collect_libs, copy
+
+required_conan_version = ">=2.0.0"
+
 
 class TimeAdapterConan(ConanFile):
-    name = "TimeAdapter"
+    name = "time-adapter"
     description = "C++ Time Adapter library"
     url = "https://github.com/systelab/cpp-time-adapter"
     homepage = "https://github.com/systelab/cpp-time-adapter"
     author = "CSW <csw@werfen.com>"
     topics = ("conan", "json", "configuration", "settings")
     license = "MIT"
-    generators = "cmake_find_package"
     settings = "os", "compiler", "build_type", "arch"
     exports_sources = "*", "!test/TimeAdapterTestUtilities", "!build*", "!*.yml", "!*.md", "!*.in", "!ci", "!.gitattributes", "!.gitignore", "!LICENSE"
 
     def requirements(self):
-        self.requires("gtest/1.14.0#4372c5aed2b4018ed9f9da3e218d18b3")
+        self.requires("gtest/1.14.0")
+
+    def generate(self):
+        CMakeToolchain(self).generate()
+        CMakeDeps(self).generate()
+        for dep in self.dependencies.values():
+            for bindir in dep.cpp_info.bindirs:
+                copy(self, "*.dll", bindir, os.path.join(self.build_folder, "bin", str(self.settings.build_type)))
+            for libdir in dep.cpp_info.libdirs:
+                copy(self, "*.dylib*", libdir, os.path.join(self.build_folder, "bin"))
+                copy(self, "*.so*", libdir, os.path.join(self.build_folder, "bin"))
 
     def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
-
-    def imports(self):
-        self.copy("*.dll", dst=("bin/%s" % self.settings.build_type), src="bin")
-        self.copy("*.dylib*", dst="bin", src="lib")
-        self.copy("*.so*", dst="bin", src="lib")
+        cmake.test()
 
     def package(self):
-        self.copy("ITimeAdapter.h", dst="include/TimeAdapter", src="src/TimeAdapter")
-        self.copy("TimeAdapter.h", dst="include/TimeAdapter", src="src/TimeAdapter")
-        self.copy("*TimeAdapter.lib", dst="lib", keep_path=False)
-        self.copy("*TimeAdapter.pdb", dst="lib", keep_path=False)
-        self.copy("*TimeAdapter.a", dst="lib", keep_path=False)
+        inc = os.path.join(self.package_folder, "include", "TimeAdapter")
+        src = os.path.join(self.source_folder, "src", "TimeAdapter")
+        copy(self, "ITimeAdapter.h", src, inc)
+        copy(self, "TimeAdapter.h", src, inc)
+        lib = os.path.join(self.package_folder, "lib")
+        copy(self, "*TimeAdapter.lib", self.build_folder, lib, keep_path=False)
+        copy(self, "*TimeAdapter.pdb", self.build_folder, lib, keep_path=False)
+        copy(self, "*TimeAdapter.a", self.build_folder, lib, keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        self.cpp_info.libs = collect_libs(self)
