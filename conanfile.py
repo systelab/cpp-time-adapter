@@ -16,10 +16,14 @@ class TimeAdapterConan(ConanFile):
     topics = ("conan", "json", "configuration", "settings")
     license = "MIT"
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = "*", "!test/TimeAdapterTestUtilities", "!build*", "!*.yml", "!*.md", "!*.in", "!ci", "!.gitattributes", "!.gitignore", "!LICENSE"
+    exports_sources = "CMakeLists.txt", "cmake/*", "src/*", "test/TimeAdapterTest/*"
 
     def requirements(self):
         self.requires("gtest/1.14.0")
+
+    def layout(self):
+        self.folders.build = os.path.join("build", f"{self.settings.build_type}-{self.settings.arch}")
+        self.folders.generators = self.folders.build
 
     def generate(self):
         CMakeToolchain(self).generate()

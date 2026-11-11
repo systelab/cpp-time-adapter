@@ -56,11 +56,35 @@ pipeline
 						{ config ->
 							stage("Build ${config}|${arch}")
 							{
-								bat "conan create . --name time-adapter --version ${params.version} --profile:all=${profile} -s arch=${arch} -s build_type=${config}"
+								bat "conan create . --name time-adapter --version ${params.version} --profile:all=${profile} -s arch=${arch} -s build_type=${config} -tf=\"\""
 								
 								dir("test/TimeAdapterTestUtilities")
 								{
-									bat "conan create . --name time-adapter-test-utilities --version ${params.version} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
+									bat "conan create . --name time-adapter-test-utilities --version ${params.version} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config} -tf=\"\""
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		stage('Test packages')
+		{
+			steps
+			{
+				script
+				{
+					archs.each
+					{ arch ->
+						configs.each
+						{ config ->
+							stage("Test ${config}|${arch}")
+							{
+								bat "conan test test_package time-adapter/${params.version} --profile:all=${profile} -s arch=${arch} -s build_type=${config}"
+								dir("test/TimeAdapterTestUtilities")
+								{
+									bat "conan test test_package time-adapter-test-utilities/${params.version} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
 								}
 							}
 						}
@@ -86,7 +110,7 @@ pipeline
 	{
 		always
 		{
-			junit allowEmptyResults: true, testResults: "build*/TimeAdapterTest.xml"
+			junit allowEmptyResults: true, testResults: "build/**/TimeAdapterTest.xml"
 			script
 			{
 				currentBuild.description = params.version
