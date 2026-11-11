@@ -50,10 +50,34 @@ pipeline
 						{ config ->
 							stage("Build ${config}|${arch}")
 							{
-								bat "conan create . --name time-adapter --version ${version} --profile:all=${profile} -s arch=${arch} -s build_type=${config}"
+								bat "conan create . --name time-adapter --version ${version} --profile:all=${profile} -s arch=${arch} -s build_type=${config} -tf=\"\""
 								dir("test/TimeAdapterTestUtilities")
 								{
-									bat "conan create . --name time-adapter-test-utilities --version ${version} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
+									bat "conan create . --name time-adapter-test-utilities --version ${version} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config} -tf=\"\""
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		stage('Test packages')
+		{
+			steps
+			{
+				script
+				{
+					archs.each
+					{ arch ->
+						configs.each
+						{ config ->
+							stage("Test ${config}|${arch}")
+							{
+								bat "conan test test_package time-adapter/${version} --profile:all=${profile} -s arch=${arch} -s build_type=${config}"
+								dir("test/TimeAdapterTestUtilities")
+								{
+									bat "conan test test_package time-adapter-test-utilities/${version} --profile:all=../../${profile} -s arch=${arch} -s build_type=${config}"
 								}
 							}
 						}

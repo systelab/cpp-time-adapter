@@ -15,7 +15,11 @@ class TimeAdapterTestUtilitiesConan(ConanFile):
     topics = ("conan", "json", "settings", "utils")
     license = "MIT"
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = "*", "!build*"
+    exports_sources = "CMakeLists.txt", "stdafx.h", "Mocks/*", "Stubs/*"
+
+    def layout(self):
+        self.folders.build = os.path.join("build", f"{self.settings.build_type}-{self.settings.arch}")
+        self.folders.generators = self.folders.build
 
     def requirements(self):
         self.requires("gtest/1.14.0")
